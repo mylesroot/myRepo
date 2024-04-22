@@ -8,6 +8,6 @@ Description: Manipulate .bed and .bigWig files and then visualise their data in 
 License: use_mit_license()
 Encoding: UTF-8
 Imports: genomation, GenomicRanges, BiocManager, rtracklayer, reshape2, IRanges, SummarizedExperiment
-Depends: genomation, GenomicRanges, BiocManager, rtracklayer, reshape2, IRanges, SummarizedExperiment
+Depends: R (>= 3.2.0), genomation, GenomicRanges, BiocManager, rtracklayer, reshape2, IRanges, SummarizedExperiment
 LazyData: true
 RoxygenNote: 7.3.1
