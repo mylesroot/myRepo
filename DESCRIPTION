@@ -1,0 +1,12 @@
+Package: rootGenomics
+Type: Package
+Title: Manipulate High Throughput Sequencing Files And Plot Graphical Data
+Version: 0.1.0
+Author: Myles Root
+Maintainer: The package maintainer <mylesnichroot@gmail.com>
+Description: Manipulate .bed and .bigWig files and
+then visualise their data in a customisable manner.
+
+License: use_mit_license()
+Encoding: UTF-8
+LazyData: true
