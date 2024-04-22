@@ -1,112 +1,28 @@
-myBedFile = ("~/Documents/Shaun Data/Saccharomyces_cerevisiae.EF4.74_SGDv64_CUTandSUT_withUTRs_noEstimates_antisense_intergenic_4xlncRNAs_final.pyCheckGTFfile.bed")
-
-myBed = readBed(myBedFile)
-
-myGtfFile = ("~/Documents/Shaun Data/Saccharomyces_cerevisiae.EF4.74_SGDv64_CUTandSUT_withUTRs_noEstimates_antisense_intergenic_4xlncRNAs_final.pyCheckGTFfile.output.gtf")
-
-myGtf = readGFFAsGRanges(myGtfFile)
-
-proteinCodingGeneList = subset(myGtf, myGtf$"gene_biotype" == "protein_coding")$gene_id
-
-
-#--------------------------------------------------------Filter By Introns------------------------------------------------------------
-
-
-#extract introns and put them into a GRanges object
-
-filterForIntrons = function(bed){
-  bed = subset(bed,bed$blockCount>1)
-  return(bed)
-
-}
-
-
-
-#--------------------------------------------------------Filter By Gene List------------------------------------------------------------
-rpGenes = "~/Documents/Shaun Data/RP_Intron_Genes.bed"
-rpGenes = readBed(rpGenes)
-rpGeneNames = rpGenes$name
-
-# This list can be used to specify genes that are misannotated or to subset the GRanges by
-
-genesOfInterest = c("tK(UUU)P", "RDN37-1", "YLR316C", "YPL198W", "Q0045", "YNL162W-A", "YDL130W-A")
-
-# Check the a list of genes and select for/select inverse from the GRanges object
-
-# inverse parameter to get the inverse of the filter
-
-filter_genes <- function(bed, geneList, inverse = FALSE) {
-  # Check if genes in geneList are present in the GRanges object
-  found_genes <- bed$name[bed$name %in% geneList]
-  not_found_genes <- geneList[!geneList %in% bed$name]
-
-  if (length(not_found_genes) > 0) {
-    message("The following genes were not found in the GRanges object: ",
-            paste(not_found_genes, collapse = ", "))
-  }
-
-  if (length(found_genes) > 0) {
-    message("Genes from the list that were found in the GRanges object: ", paste(found_genes, collapse = ", "))
+#' Get Specific Gene Ranges From Your GRanges Object
+#'
+#' This function returns a list of GRanges objects corresponding to specific gene ranges. Included in that list
+#' is the upstream range, TSS->Exon1 range, Intron1 range, Exon2->TES range and the downstream range. This GRanges list
+#' can then be used by the regionPlot and plotRegion functions to plot these specific regions on a graph. IMPORTANT: You must
+#' filter your GRanges object to only include intron-containing genes before using this function
+#'
+#' @param object The GRanges object that you would like to get ranges from
+#' @param plus TRUE/FALSE to only return ranges with plus strandedness
+#' @param minus TRUE/FALSE to only return ranges with minus strandedness
+#' @param upstream The width of the upstream range you want to return. Enter NULL if you don't want the upstream range.
+#' @param downstream The width of the downstream range you want to return. Enter NULL if you don't want the downstream range.
+#' @param exon1 TRUE/FALSE to return the TSS->Exon1 range in your list
+#' @param intron1 TRUE/FALSE to return the intron1 range in your list
+#' @param exon2Tes TRUE/FALSE to return the exon2 -> TES range
+#'
+#' @importFrom GenomicRanges GRanges
+#' @importFrom GenomicRanges GRangesList
+#' @importFrom IRanges promoters
+#' @import BiocGenerics
+#'
+#'@export
 
 
-    if(inverse){
-      proceed <- readline(prompt = "Proceed to remove found genes? (y/n): ")
-    }
-
-    else {
-      proceed <- readline(prompt = "Proceed to remove all genes but the one/s found? (y/n): ")
-    }
-
-    if (tolower(proceed) == "y") {
-
-      if (inverse) {
-        # Filter to REMOVE the genes in the list
-        filtered_bed <- bed[!bed$name %in% geneList, ]
-        message("These genes were removed ", paste(found_genes, collapse = ", "))
-      } else {
-        # Filter to KEEP the specified genes
-        filtered_bed <- bed[bed$name %in% geneList, ]
-        message("GRanges object filtered to the specified genes.")
-      }
-    } else {
-      message("Filtering cancelled.")
-      filtered_bed = bed
-    }
-
-  } else {
-
-    message("No genes from the list were found, filtering cancelled")
-    filtered_bed = bed
-
-  }
-
-  return(filtered_bed)
-
-}
-
-#--------------------------------------------------------Filter By Strand------------------------------------------------------------
-
-
-filter_by_strand <- function(bed, plus = FALSE, minus = FALSE, other = FALSE) {
-
-  # Check if at least one strand type is selected for filtering
-  if (!plus && !minus && !other) {
-    stop("At least one strand type must be selected for filtering.")
-  }
-
-  keep_strands <- c()
-  if (plus) keep_strands <- c(keep_strands, "+")
-  if (minus) keep_strands <- c(keep_strands, "-")
-  if (other) keep_strands <- c(keep_strands, "*")
-
-  filtered_bed <- subset(bed, strand(bed) %in% keep_strands)
-
-  return(filtered_bed)
-}
-
-#--------------------------------------------------------Get Ranges Function---------------------------------------------------------
-
-getRanges = function(object, plus = FALSE, minus = FALSE, upstream = 2000, downstream = 2000, exon1 = TRUE, intron1 = TRUE, exon2Tes = TRUE){
+getRanges = function(object, plus = TRUE, minus = FALSE, upstream = 2000, downstream = 2000, exon1 = TRUE, intron1 = TRUE, exon2Tes = TRUE){
 
   # Ensure input validity
   if (!inherits(object, "GRanges")) {
@@ -114,23 +30,23 @@ getRanges = function(object, plus = FALSE, minus = FALSE, upstream = 2000, downs
   }
 
   # Create GRanges objects to concatenate
-  upstreamRange = GRanges()
-  downstreamRange = GRanges()
-  exon1Range = GRanges()
-  intron1Range = GRanges()
-  exon2TesRange = GRanges()
+  upstreamRange = GenomicRanges::GRanges()
+  downstreamRange = GenomicRanges::GRanges()
+  exon1Range = GenomicRanges::GRanges()
+  intron1Range = GenomicRanges::GRanges()
+  exon2TesRange = GenomicRanges::GRanges()
 
   keep_strands <- c()
   if (plus) keep_strands <- c(keep_strands, "+", "*")
   if (minus) keep_strands <- c(keep_strands, "-")
 
-  object <- subset(object, strand(object) %in% keep_strands)
+  object <- subset(object, BiocGenerics::strand(object) %in% keep_strands)
 
   # If upstream != NULL, get upstream flank regions and append to list
 
   if(!is.null(upstream)){
 
-    upstreamRange = promoters(object, upstream = upstream, downstream = 0)
+    upstreamRange = IRanges::promoters(object, upstream = upstream, downstream = 0)
 
   }
 
@@ -172,12 +88,11 @@ getRanges = function(object, plus = FALSE, minus = FALSE, upstream = 2000, downs
     }
 
     # Combine results and create new GRanges object
-    tss_exon1_ranges <- GRanges(
-      seqnames = c(seqnames(plus_strand), seqnames(minus_strand)),
-      ranges = IRanges(c(start(plus_strand), exon1_ends_minus),
-                       c(exon1_ends_plus, end(minus_strand))),
-      strand = c(rep("+", length(plus_strand)), rep("-", length(minus_strand)))
-    )
+
+    tss_exon1_ranges = GenomicRanges::GRanges(seqnames = c(seqnames(plus_strand), seqnames(minus_strand)),
+                                              ranges = IRanges(c(start(plus_strand), exon1_ends_minus),
+                                                               c(exon1_ends_plus, end(minus_strand))),
+                                              strand = c(rep("+", length(plus_strand)), rep("-", length(minus_strand))))
 
     # Add metadata (optional)
     if (length(mcols(object)) > 0) {
@@ -243,12 +158,11 @@ getRanges = function(object, plus = FALSE, minus = FALSE, upstream = 2000, downs
     }
 
     # Combine results and create new GRanges object
-    intron1_ranges <- GRanges(
-      seqnames = c(seqnames(plus_strand), seqnames(minus_strand)),
-      ranges = IRanges(c(intron1_starts_plus, intron1_ends_minus),
-                       c(intron1_ends_plus, intron1_starts_minus)),
-      strand = c(rep("+", length(plus_strand)), rep("-", length(minus_strand)))
-    )
+
+    intron1_ranges = GenomicRanges::GRanges(seqnames = c(seqnames(plus_strand), seqnames(minus_strand)),
+                                            ranges = IRanges(c(intron1_starts_plus, intron1_ends_minus),
+                                                             c(intron1_ends_plus, intron1_starts_minus)),
+                                            strand = c(rep("+", length(plus_strand)), rep("-", length(minus_strand))))
 
     # Add metadata (optional)
     if (length(mcols(object)) > 0) {
@@ -298,12 +212,11 @@ getRanges = function(object, plus = FALSE, minus = FALSE, upstream = 2000, downs
     }
 
     # Combine results and create new GRanges object
-    tes_exon2start_ranges <- GRanges(
-      seqnames = c(seqnames(plus_strand), seqnames(minus_strand)),
-      ranges = IRanges(c(exon2_starts_plus, exon2_starts_minus),
-                       c(end(plus_strand), tss_minus)),
-      strand = c(rep("+", length(plus_strand)), rep("-", length(minus_strand)))
-    )
+
+    tes_exon2start_ranges = GenomicRanges::GRanges(seqnames = c(seqnames(plus_strand), seqnames(minus_strand)),
+                                                   ranges = IRanges(c(exon2_starts_plus, exon2_starts_minus),
+                                                                    c(end(plus_strand), tss_minus)),
+                                                   strand = c(rep("+", length(plus_strand)), rep("-", length(minus_strand))))
 
     # Add metadata (optional)
     if (length(mcols(object)) > 0) {
@@ -330,12 +243,11 @@ getRanges = function(object, plus = FALSE, minus = FALSE, upstream = 2000, downs
     downstream_minus = tes_minus - downstream
 
     # Combine results and create new GRanges object
-    TES_downstream <- GRanges(
-      seqnames = c(seqnames(plus_strand), seqnames(minus_strand)),
-      ranges = IRanges(c(tes_plus, downstream_minus),
-                       c(downstream_plus, tes_minus)),
-      strand = c(rep("+", length(plus_strand)), rep("-", length(minus_strand)))
-    )
+
+    TES_downstream = GenomicRanges::GRanges(seqnames = c(seqnames(plus_strand), seqnames(minus_strand)),
+                                            ranges = IRanges(c(tes_plus, downstream_minus),
+                                                             c(downstream_plus, tes_minus)),
+                                            strand = c(rep("+", length(plus_strand)), rep("-", length(minus_strand))))
 
     # Add metadata (optional)
     if (length(mcols(object)) > 0) {
@@ -349,7 +261,7 @@ getRanges = function(object, plus = FALSE, minus = FALSE, upstream = 2000, downs
 
   # Create a GRanges list of all the ranges. If the range is empty, then remove it from the final list.
 
-  ranges = GRangesList(upstreamRange, exon1Range, intron1Range, exon2TesRange, downstreamRange)
+  ranges = GenomicRanges::GRangesList(upstreamRange, exon1Range, intron1Range, exon2TesRange, downstreamRange)
   keep_elements = list()
 
   for(i in seq_along(ranges)){
