@@ -5,7 +5,7 @@
 #'
 #' @param bed The GRanges object that you would like to filter
 #'
-#'
+#' @export
 
 
 filterForIntrons = function(bed){
