@@ -2,7 +2,7 @@
 % Please edit documentation in R/GRanges From File.R
 \name{grangesFromFile}
 \alias{grangesFromFile}
-\title{Load A High .bed or a .gtf file}
+\title{Load a GRanges object from a .bed or a .gtf file}
 \usage{
 grangesFromFile(filePath, gtf = FALSE, bed = FALSE)
 }

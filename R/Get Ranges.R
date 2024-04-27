@@ -275,3 +275,8 @@ getRanges = function(object, plus = TRUE, minus = FALSE, upstream = 2000, downst
   return(ranges)
 
 }
+
+
+
+
+

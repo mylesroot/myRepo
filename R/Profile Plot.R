@@ -2,16 +2,18 @@
 #'
 #' This function takes the Profile Plot objects you've created and enables you to plot them.
 #'
-#' @param object Profile Plot object you created
-#' @param group = A list of gene names you'd like to facet your plots with
-#' @param goupBy = A character vector of the group names to display on your plot
+#' @param object Profile Plot object you created using the createProfile() function
+#' @param group = A list of gene names you'd like to facet your plots by.
+#' @param groupNames = A character vector of the group names to display on your plot
+#' @param returnMatrix A TRUE/FALSE argument. If set to true, no plot is generated, and instead the function returns a matrix
+#' of values that you can then use in your own plotting software.
 #'
 #' @import BiocGenerics reshape2 genomation GenomicRanges ggplot2
 #'
 #' @export
 
 
-plotProfile = function(object, group = NULL, groupBy = NULL){
+plotProfile = function(object, group = NULL, groupNames = NULL, returnMatrix = FALSE){
 
   # Pass parameters for bin sizes (used for break calculation)
 
@@ -50,7 +52,7 @@ plotProfile = function(object, group = NULL, groupBy = NULL){
 
       profileMatTemp <- melt(as.data.frame(do.call(cbind,profileListTemp)))
 
-      profileMatTemp$variable = factor(profileMatTemp$variable, levels = c("V1", "V2"), labels = groupBy)
+      profileMatTemp$variable = factor(profileMatTemp$variable, levels = c("V1", "V2"), labels = groupNames)
 
       #axisIndex=c(seq(1,nrow(profileMatTemp)))
 
@@ -86,6 +88,13 @@ plotProfile = function(object, group = NULL, groupBy = NULL){
     colnames(meltedProfileFrame) <- c("xIndex","Sample","Score")
 
   }
+
+  if (returnMatrix == TRUE){
+
+
+    return(meltedProfileFrame)
+
+  } else {
 
   P <- ggplot(meltedProfileFrame,
               aes_string(x="xIndex",y="Score"))+geom_path(alpha = 1,size=1.3)+xlim(0,max(axisIndex))+ylab("Score")+theme(axis.title.y=element_text(angle=0))
@@ -128,6 +137,8 @@ plotProfile = function(object, group = NULL, groupBy = NULL){
   }
 
   return(P)
+
+  }
 
 }
 

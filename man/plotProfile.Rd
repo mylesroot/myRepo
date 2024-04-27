@@ -4,14 +4,17 @@
 \alias{plotProfile}
 \title{Function To Plot Your Profile Plot objects}
 \usage{
-plotProfile(object, group = NULL, groupBy = NULL)
+plotProfile(object, group = NULL, groupNames = NULL, returnMatrix = FALSE)
 }
 \arguments{
-\item{object}{Profile Plot object you created}
+\item{object}{Profile Plot object you created using the createProfile() function}
 
-\item{group}{= A list of gene names you'd like to facet your plots with}
+\item{group}{= A list of gene names you'd like to facet your plots by.}
 
-\item{goupBy}{= A character vector of the group names to display on your plot}
+\item{groupNames}{= A character vector of the group names to display on your plot}
+
+\item{returnMatrix}{A TRUE/FALSE argument. If set to true, no plot is generated, and instead the function returns a matrix
+of values that you can then use in your own plotting software.}
 }
 \description{
 This function takes the Profile Plot objects you've created and enables you to plot them.

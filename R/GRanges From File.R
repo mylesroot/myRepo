@@ -1,4 +1,4 @@
-#' Load A High .bed or a .gtf file
+#' Load a GRanges object from a .bed or a .gtf file
 #'
 #' This function takes the file path of a .bed or .gtf file and returns a
 #' GRanges object of the information in the file

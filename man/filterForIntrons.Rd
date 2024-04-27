@@ -4,10 +4,10 @@
 \alias{filterForIntrons}
 \title{Filter GRanges Objects With Block Counts >1}
 \usage{
-filterForIntrons(bed)
+filterForIntrons(object)
 }
 \arguments{
-\item{bed}{The GRanges object that you would like to filter}
+\item{object}{The GRanges object that you would like to filter}
 }
 \description{
 This function takes a GRanges object and then returns a new GRanges object
