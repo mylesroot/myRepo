@@ -15,7 +15,8 @@ getFeature(
   end_flank = 0,
   end_direction = "down",
   end_exon = NULL,
-  end_exon_boundary = NULL
+  end_exon_boundary = NULL,
+  return = "all"
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ getFeature(
 \item{end_exon}{If your end feature is an exon/intron, set this number to whichever you'd like to end around.}
 
 \item{end_exon_boundary}{The exon boundary you'd like to end at. Set to '3prime' or '5prime'}
+
+\item{return}{Set the strandedness of the ranges you'd like to return. This can be set to 'all', 'plus', or 'minus'.}
 }
 \description{
 Input the strand, start and end point of the range, and specify the feature you want this around. Speficy upstream

@@ -14,10 +14,10 @@
 #'@param end_direction The direction from the end point to set your flank region start.
 #'@param end_exon If your end feature is an exon/intron, set this number to whichever you'd like to end around.
 #'@param end_exon_boundary The exon boundary you'd like to end at. Set to '3prime' or '5prime'
+#'@param return Set the strandedness of the ranges you'd like to return. This can be set to 'all', 'plus', or 'minus'.
 #'
 #'@importFrom GenomicRanges GRanges
 #'@importFrom GenomicRanges GRangesList
-#'@importFrom IRanges promoters
 #'@import BiocGenerics
 #'
 #'@export
@@ -26,7 +26,7 @@
 
 getFeature = function(object, start_feature = "TSS", start_flank = 0, start_exon = NULL, start_exon_boundary = NULL,
                       start_direction = "up", end_feature = "TES", end_flank = 0, end_direction = 'down',
-                      end_exon = NULL, end_exon_boundary = NULL){
+                      end_exon = NULL, end_exon_boundary = NULL, return = 'all'){
 
   # Ensure input validity
   if (!inherits(object, "GRanges")) {
@@ -545,8 +545,30 @@ getFeature = function(object, start_feature = "TSS", start_flank = 0, start_exon
 
   }
 
+  if(return == "all"){
 
-  print(minusStrandTempRanges)
-  print(plusStrandTempRanges)
+    allRanges = c(minusStrandTempRanges, plusStrandTempRanges)
+
+    return(allRanges)
+
+  }
+
+  else if(return == "plus"){
+
+    return(plusStrandTempRanges)
+
+  }
+
+  else if(return == "minus"){
+
+    return(minusStrandTempRanges)
+
+  }
+
+  else{
+
+    print("Please set a return value to 'all', 'plus' or 'minus'")
+
+  }
 
 }
